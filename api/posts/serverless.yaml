@@ -52,3 +52,11 @@ functions:
           path: /posts
           integration: lambda-proxy
           # authorizer: ${self:custom.authorizer}
+  postsByUser:
+    handler: postsByUser.handler
+    events:
+      - http:
+          method: GET
+          path: /users/me/posts
+          integration: lambda-proxy
+          authorizer: ${self:custom.authorizer}
