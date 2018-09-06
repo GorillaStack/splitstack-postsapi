@@ -1,0 +1,179 @@
+service: postsapi
+provider:
+  name: aws
+  runtime: nodejs8.10
+  iamRoleStatements:
+    -
+      Effect: "Allow"
+      Action: [ logs:CreateLogStream ]
+      Resource:
+        Fn::Join: 
+          - ""
+          - ["arn:aws:logs:", {Ref: "AWS::Region"}, ":", {Ref: "AWS::AccountId"}, ":log-group:/aws/lambda/postsapi-*:*"]
+    -
+      Effect: Allow
+      Action: [ logs:PutLogEvents ]
+      Resource:
+        Fn::Join:
+          - ""
+          - ["arn:aws:logs:", {Ref: "AWS::Region"}, ":", {Ref: "AWS::AccountId"}, ":log-group:/aws/lambda/postsapi-*:*:*"]
+    -
+      Effect: Allow
+      Action: [ dynamodb:* ]
+      Resource:
+       Fn::Join:
+          - ""
+          - ["arn:aws:dynamodb:", {Ref: "AWS::Region"}, ":", {Ref: "AWS::AccountId"}, ":table/postsapi-${opt:stage}-*"]
+functions:
+  generalAuthorizer:
+    handler: generalAuthorizer.handler
+    environment:
+      SECRET: ${self:custom.webTokenSecret}
+custom:
+  # NOTE: Change this if you plan to use/deploy this template!
+  webTokenSecret: BLAHBLAHBLAH
+resources:
+  Resources:
+
+    # Rest API
+    ApiGatewayRestApi:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: postsapi
+        Description: Posts API Gateway
+        
+    # Rest API Paths
+    ApiGatewayResourceUsers:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        RestApiId: { Ref: "ApiGatewayRestApi" }
+        ParentId: { Fn::GetAtt: "ApiGatewayRestApi.RootResourceId" }
+        PathPart: users
+    ApiGatewayResourceUsersMe:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        RestApiId: { Ref: "ApiGatewayRestApi" }
+        ParentId: { Ref: "ApiGatewayResourceUsers" }
+        PathPart: "me"
+        
+    # Authorizer
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        AuthorizerResultTtlInSeconds: 300
+        AuthorizerUri:
+          Fn::Join:
+            - ''
+            - 
+              - 'arn:aws:apigateway:'
+              - Ref: "AWS::Region"
+              - ':lambda:path/2015-03-31/functions/'
+              - Fn::GetAtt: "GeneralAuthorizerLambdaFunction.Arn"
+              - "/invocations"
+        IdentitySource: method.request.header.Authorization
+        IdentityValidationExpression: "Bearer .+"
+        RestApiId: { Ref: ApiGatewayRestApi }
+        Type: TOKEN
+        Name: postsapi-${opt:stage}-authorizer
+    ApiGatewayAuthorizerPermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Fn::GetAtt: GeneralAuthorizerLambdaFunction.Arn
+        Action: lambda:InvokeFunction
+        Principal:
+          Fn::Join: ["",["apigateway.", { Ref: "AWS::URLSuffix"}]]
+    
+    # Tables
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: postsapi-${opt:stage}-users
+        AttributeDefinitions:
+          - 
+            AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - 
+            AttributeName: userId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    PostsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: postsapi-${opt:stage}-posts
+        AttributeDefinitions:
+          - 
+            AttributeName: postId
+            AttributeType: S
+          - 
+            AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - 
+            AttributeName: postId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+          - IndexName: userId
+            KeySchema:
+              - 
+                AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+
+  Outputs:
+    # RestApi resource ID (e.g. ei829oe)
+    RestApiId:
+      Value:
+        Ref: ApiGatewayRestApi
+      Export:
+        Name: postsapi-${opt:stage}-RestApiId
+    # RestApi Root Resource (the implicit '/' path)
+    RootResourceId:
+      Value:
+        Fn::GetAtt: ApiGatewayRestApi.RootResourceId
+      Export:
+        Name: postsapi-${opt:stage}-RootResourceId
+    # The IAM Role for Lambda execution
+    IamRoleLambdaExecution:
+      Value:
+        Fn::GetAtt: IamRoleLambdaExecution.Arn
+      Export:
+        Name: postsapi-${opt:stage}-IamRoleLambdaExecution
+    # The Authorizer (only if you are using an API Gateway authorizer)
+    ApiGatewayAuthorizerId:
+      Value:
+        Ref: ApiGatewayAuthorizer
+      Export:
+        Name: postsapi-${opt:stage}-ApiGatewayAuthorizerId
+    # Path Resources
+    ApiGatewayResourceUsers:
+      Value:
+        Ref: ApiGatewayResourceUsers
+      Export:
+        Name: postsapi-${opt:stage}-ApiGatewayResourceUsers
+    ApiGatewayResourceUsersMe:
+      Value:
+        Ref: ApiGatewayResourceUsersMe
+      Export:
+        Name: postsapi-${opt:stage}-ApiGatewayResourceUsersMe
+    # Table Resources
+    UsersTable:
+      Value:
+        Ref: UsersTable
+      Export:
+        Name: postsapi-${opt:stage}-UsersTable
+    PostsTable:
+      Value:
+        Ref: PostsTable
+      Export:
+        Name: postsapi-${opt:stage}-PostsTable

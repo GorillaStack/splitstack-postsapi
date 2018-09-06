@@ -1,0 +1,53 @@
+service: postsapi-users
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 1024MB
+  timeout: 10
+  role:
+    Fn::ImportValue: postsapi-${opt:stage}-IamRoleLambdaExecution
+  apiGateway:
+    restApiId: 
+      Fn::ImportValue: 'postsapi-${opt:stage}-RestApiId'
+    restApiRootResourceId:
+      Fn::ImportValue: 'postsapi-${opt:stage}-RootResourceId'
+    restApiResources:
+      users: { 'Fn::ImportValue': 'postsapi-${opt:stage}-ApiGatewayResourceUsers' }
+      users/me:
+        Fn::ImportValue: 'postsapi-${opt:stage}-ApiGatewayResourceUsersMe'
+  environment:
+    # NOTE: change this before deploying
+    SECRET: BLAHBLAHBLAH
+    USERS_TABLE:
+      Fn::ImportValue: postsapi-${opt:stage}-UsersTable
+custom:
+  webpack:
+    includeModules:
+      forceExclude:
+        - aws-sdk
+      packagePath: ../../package.json
+  authorizer:
+    type: CUSTOM
+    authorizerId: 
+      Fn::ImportValue: postsapi-${opt:stage}-ApiGatewayAuthorizerId
+plugins:
+  - serverless-webpack
+package:
+  include:
+    - ../../node_modules
+functions:
+  token:
+    handler: token.handler
+    events:
+      - http:
+          method: POST
+          path: /token
+          integration: lambda-proxy
+  usersCreate:
+    handler: usersCreate.handler
+    events:
+      - http:
+          method: POST
+          path: /users
+          integration: lambda-proxy
+          # authorizer: ${self:custom.authorizer}
