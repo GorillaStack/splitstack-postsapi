@@ -1,7 +1,7 @@
 {
-  "name": "splitstack-apiposts",
+  "name": "splitstack-postsapi",
   "version": "1.0.0",
-  "description": "",
+  "description": "An example of split serverless stacks",
   "main": "index.js",
   "dependencies": {
     "jsonwebtoken": "^8.3.0",
@@ -15,8 +15,10 @@
     "webpack-node-externals": "^1.7.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "GorillaStack",
+  "license": "ISC",
+  "repository": {
+	  "url": "https://github.com/GorillaStack/splitstack-postsapi.git"
+  }
 }
