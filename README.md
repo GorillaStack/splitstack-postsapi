@@ -31,9 +31,9 @@ npm install
 
 ```bash
 # (optional) set the AWS_PROFILE variable as per the setup of your ~/.aws/credentials file. 
-# This file is set with a default profile when you run `aws configure` 
-# and specify your access key id/secret key
-export AWS_PROFILE=myprofile
+# This file is set with a default profile when you run `aws configure` and specify 
+# your access key id/secret key
+export AWS_PROFILE=myprofile # or 'Set-Item env:AWS_PROFILE myprofile' in Powershell
 
 serverless deploy --stage dev
 
@@ -51,6 +51,74 @@ cd ../../
 
 cd api/posts
 serverless deploy --stage dev
+```
+
+## Usage
+
+Not all the endpoints from the blog post are implemented, but a basic flow is possible. Once you've deployed the
+API, you should get the endpoints printed to the console by serverless e.g.:
+
+```
+.......................................
+Serverless: Stack update finished...
+Service Information
+service: postsapi-users
+stage: test
+region: us-east-1
+stack: postsapi-users-test
+api keys:
+  None
+endpoints:
+  POST - https://2398u2d9oa.execute-api.us-east-1.amazonaws.com/test/token
+  POST - https://2398u2d9oa.execute-api.us-east-1.amazonaws.com/test/users
+functions:
+  token: postsapi-users-test-token
+  usersCreate: postsapi-users-test-usersCreate
+```
+
+Replace the endpoint in the following examples (all are using curl, but Postman or a similar API testing tool is recommended).
+
+__Create User__
+
+```
+> curl -XPOST -d '{ "name": "Chris", "password": "TeSTPassWOrd" }' https://2398u2d9oa.execute-api.us-east-1.amazonaws.com/test/users`
+
+{"userId":"d861a56e-802e-472b-8daf-3005bb2092f3","name":"Chris"}
+```
+
+__Get Token__
+
+```
+> curl -XPOST -d '{ "userId": "d861a56e-802e-472b-8daf-3005bb2092f3", "password": "TeSTPassWOrd" }' https://2398u2d9oa.execute-api.us-east-1.amazonaws.com/test/token
+
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkODYxYTU2ZS04MDJlLTQ3MmItOGRhZi0zMDA1YmIyMDkyZjMiLCJpYXQiOjE1MzYyMTg3ODAsImV4cCI6MTUzNjgyMzU4MH0.j7exIrL-Y88KnhRn9WA7AWGMRPna8Ib3t42jEpSN7T4"}
+```
+
+__Write Post__
+
+```
+> curl -XPOST -d '{ "text": "This is my extra interesting and short blog post." }' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkODYxYTU2ZS04MDJlLTQ3MmItOGRhZi0zMDA1YmIyMDkyZjMiLCJpYXQiOjE1MzYyMTg3ODAsImV4cCI6MTUzNjgyMzU4MH0.j7exIrL-Y88KnhRn9WA7AWGMRPna8Ib3t42jEpSN7T4' https://2398u2d9oa.execute-api.us-east-1.amazonaws.com/test/posts
+
+{"postId":"b47f126a-5a1c-4a3e-b1be-dcafaaaac7f6","userId":"d861a56e-802e-472b-8daf-3005bb2092f3","text":"This is my extra interesting and short blog post."}
+```
+
+__List Posts__
+
+(try creating another user and adding posts as them first - the API should
+filter them out)
+
+```
+> curl -XGET https://2398u2d9oa.execute-api.ap-southeast-2.amazonaws.com/test/posts
+
+[{"postId":"b47f126a-5a1c-4a3e-b1be-dcafaaaac7f6","text":"This is my extra interesting and short blog post."}]
+```
+
+__List posts by user__
+
+```
+> curl -XGET -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkODYxYTU2ZS04MDJlLTQ3MmItOGRhZi0zMDA1YmIyMDkyZjMiLCJpYXQiOjE1MzYyMTg3ODAsImV4cCI6MTUzNjgyMzU4MH0.j7exIrL-Y88KnhRn9WA7AWGMRPna8Ib3t42jEpSN7T4' https://2398u2d9oa.execute-api.us-east-1.amazonaws.com/test/users/me/posts
+
+[{"postId":"b47f126a-5a1c-4a3e-b1be-dcafaaaac7f6","userId":"d861a56e-802e-472b-8daf-3005bb2092f3","text":"This is my extra interesting and short blog post."}]
 ```
 
 ## Writing code
