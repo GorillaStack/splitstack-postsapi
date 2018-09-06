@@ -14,11 +14,10 @@
     "webpack": "^4.17.2",
     "webpack-node-externals": "^1.7.2"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "author": "GorillaStack Pty Ltd",
   "license": "ISC",
   "repository": {
-	  "url": "https://github.com/GorillaStack/splitstack-postsapi.git"
+    "url": "https://github.com/GorillaStack/splitstack-postsapi.git"
   }
 }
