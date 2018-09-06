@@ -25,10 +25,10 @@ module.exports.handler = async event => {
   };
 
   const dc = new AWS.DynamoDB.DocumentClient();
-  const result = await dc.put({
+  await dc.put({
     Item: item,
     TableName: process.env.POSTS_TABLE,
-  });
+  }).promise();
   return {
     statusCode: 200,
     body: JSON.stringify(item),
