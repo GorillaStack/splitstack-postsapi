@@ -1,0 +1,3 @@
+encryption:
+  # change this in production
+  secret: BLAHBLAHBLAH

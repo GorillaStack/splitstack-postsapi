@@ -28,10 +28,10 @@ functions:
   generalAuthorizer:
     handler: generalAuthorizer.handler
     environment:
-      SECRET: ${self:custom.webTokenSecret}
+      SECRET: ${self:custom.config.encryption.secret}
 custom:
   # NOTE: Change this if you plan to use/deploy this template!
-  webTokenSecret: BLAHBLAHBLAH
+  config: ${file(config.yaml)}
 resources:
   Resources:
 
@@ -55,7 +55,7 @@ resources:
         RestApiId: { Ref: "ApiGatewayRestApi" }
         ParentId: { Ref: "ApiGatewayResourceUsers" }
         PathPart: "me"
-        
+
     # Authorizer
     ApiGatewayAuthorizer:
       Type: AWS::ApiGateway::Authorizer

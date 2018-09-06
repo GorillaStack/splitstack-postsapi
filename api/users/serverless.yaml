@@ -17,10 +17,11 @@ provider:
         Fn::ImportValue: 'postsapi-${opt:stage}-ApiGatewayResourceUsersMe'
   environment:
     # NOTE: change this before deploying
-    SECRET: BLAHBLAHBLAH
+    SECRET: ${self:custom.config.encryption.secret}
     USERS_TABLE:
       Fn::ImportValue: postsapi-${opt:stage}-UsersTable
 custom:
+  config: ${file(../../config.yaml)}
   webpack:
     includeModules:
       forceExclude:
