@@ -24,9 +24,6 @@ in plaintext, which is not secure.
 2. Install the npm modules
 
 ```bash
-
-export AWS_PROFILE=myprofile
-
 npm install
 ```
 
@@ -36,6 +33,7 @@ npm install
 # (optional) set the AWS_PROFILE variable as per the setup of your ~/.aws/credentials file. 
 # This file is set with a default profile when you run `aws configure` 
 # and specify your access key id/secret key
+export AWS_PROFILE=myprofile
 
 serverless deploy --stage dev
 ```
