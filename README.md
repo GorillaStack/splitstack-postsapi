@@ -3,6 +3,9 @@
 This repository provides an example of using the [serverless framework](https://serverless.com) with split stacks
 i.e. splitting the endpoints across multiple stacks.
 
+It is the accompaniment for the [blog post found here](https://www.gorillastack.com/news/splitting-your-serverless-framework-api-on-aws) explaining
+how to split serverless stacks.
+
 ## Layout
 
  - `/serverless.yaml` - the base stack (contains API Gateway, authoriser, IAM role and shared path resources)
