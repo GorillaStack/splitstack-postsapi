@@ -1,10 +1,9 @@
 # Split serverless stack - postsapi example
 
 This repository provides an example of using the [serverless framework](https://serverless.com) with split stacks
-i.e. splitting the endpoints across multiple stacks.
+i.e. splitting the CloudFormation resources across multiple stacks.
 
-It is the accompaniment for the [blog post found here](https://www.gorillastack.com/news/splitting-your-serverless-framework-api-on-aws) explaining
-how to split serverless stacks.
+It is the accompaniment for the [blog post found here](https://www.gorillastack.com/news/splitting-your-serverless-framework-api-on-aws) explaining how to split serverless stacks.
 
 ## Layout
 
@@ -18,11 +17,12 @@ You will need:
  - [nodejs 8.10](https://nodejs.org) or higher
  - an AWS account
  - [the awscli tool](https://aws.amazon.com/cli/)
- - serverless CLI tool (eiter installed globally i.e. `npm install -g serverless` or locally)
+ - serverless CLI tool (either installed globally i.e. `npm install -g serverless` or locally)
 
 _NOTE:_ It is not recommended to use this example in production - the storage of the JWT encryption secret is
-in plaintext, which is not secure.
+in plaintext, which is not secure. As an exercise, consider re-implementing using AWS Systems Manager Parameter Store to store the secret and then retrieving it upon startup :-)
 
+Steps:
 1. First change the secret in `config.yaml` that is used to sign and verify the token so it is a random string.
 2. Install the npm modules
 
@@ -34,8 +34,8 @@ npm install
 
 ```bash
 # (optional) set the AWS_PROFILE variable as per the setup of your ~/.aws/credentials file. 
-# This file is set with a default profile when you run `aws configure` and specify 
-# your access key id/secret key
+# This file is set with a default profile when you previously run `aws configure` and specified 
+# your access key id and secret key
 export AWS_PROFILE=myprofile # or 'Set-Item env:AWS_PROFILE myprofile' in Powershell
 
 serverless deploy --stage dev
@@ -58,8 +58,9 @@ serverless deploy --stage dev
 
 ## Usage
 
-Not all the endpoints from the blog post are implemented, but a basic flow is possible. Once you've deployed the
-API, you should get the endpoints printed to the console by serverless e.g.:
+(Not all the endpoints from the blog post are implemented, but a basic flow is possible.)
+
+Once you've deployed the API, you should get the endpoints printed to the console by serverless e.g.:
 
 ```
 .......................................
@@ -79,7 +80,7 @@ functions:
   usersCreate: postsapi-users-test-usersCreate
 ```
 
-Replace the endpoint in the following examples (all are using curl, but Postman or a similar API testing tool is recommended).
+Replace the endpoint in the following examples (all are using [curl](https://curl.haxx.se/docs/manpage.html), but [Postman](https://www.getpostman.com/) or a similar API testing tool is recommended).
 
 __Create User__
 
@@ -126,8 +127,6 @@ __List posts by user__
 
 ## Writing code
 
-NodeJS 8.10 is used, so its possible to use async/await along with destructuring and other fancy ES6 features. 
-
 We've used the [serverless-webpack](https://github.com/serverless-heaven/serverless-webpack) plugin to package code 
 before deploying it. This permits us to store our node modules in the root directory and not require a package.json
 per child-stack. An additional benefit is that only the node modules we require in the code will 
@@ -135,10 +134,10 @@ be deployed by the child stacks (no dev dependencies are deployed unless they ar
 entry points!).
 
 We've also configured it externalise the node modules so they don't get
-included in the webpack bundle, but instead are copied 'as is'. It also
+included in the webpack bundle, but instead are copied 'as is'. It
 excludes the aws-sdk module, which is added automatically by AWS Lambda.
 
-A side effect of this too is that it is possible to use babel with the plugin to bring in experimental features
+NodeJS 8.10 is used, so its possible to use async/await along with destructuring and other fancy ES6 features. A side effect of using serverless-webpack too is that it is possible to use the babel-loader with webpack to bring in experimental features
 or newer JavaScript syntax. See the [serverless webpack website](https://github.com/serverless-heaven/serverless-webpack)
 for more details.
 
