@@ -4,14 +4,14 @@
   "description": "An example of split serverless stacks",
   "main": "index.js",
   "dependencies": {
-    "jsonwebtoken": "^8.3.0",
+    "jsonwebtoken": "^8.4.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "aws-sdk": "^2.309.0",
-    "serverless": "^1.30.3",
+    "aws-sdk": "^2.401.0",
+    "serverless": "^1.37.1",
     "serverless-webpack": "^5.2.0",
-    "webpack": "^4.17.2",
+    "webpack": "^4.29.3",
     "webpack-node-externals": "^1.7.2"
   },
   "scripts": {},
