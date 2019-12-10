@@ -14,7 +14,7 @@ It is the accompaniment for the [blog post found here](https://www.gorillastack.
 ## Deploying
 
 You will need:
- - [nodejs 8.10](https://nodejs.org) or higher
+ - [nodejs 12](https://nodejs.org) or higher
  - an AWS account
  - [the awscli tool](https://aws.amazon.com/cli/)
  - serverless CLI tool (either installed globally i.e. `npm install -g serverless` or locally)
@@ -137,7 +137,7 @@ We've also configured it externalise the node modules so they don't get
 included in the webpack bundle, but instead are copied 'as is'. It
 excludes the aws-sdk module, which is added automatically by AWS Lambda.
 
-NodeJS 8.10 is used, so its possible to use async/await along with destructuring and other fancy ES6 features. A side effect of using serverless-webpack too is that it is possible to use the babel-loader with webpack to bring in experimental features
+NodeJS 12 is used, so its possible to use async/await along with destructuring and other fancy ES6 features. A side effect of using serverless-webpack too is that it is possible to use the babel-loader with webpack to bring in experimental features
 or newer JavaScript syntax. See the [serverless webpack website](https://github.com/serverless-heaven/serverless-webpack)
 for more details.
 
