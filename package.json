@@ -5,13 +5,13 @@
   "main": "index.js",
   "dependencies": {
     "jsonwebtoken": "^8.5.1",
-    "uuid": "^3.3.3"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.586.0",
-    "serverless": "^1.59.3",
-    "serverless-webpack": "^5.3.1",
-    "webpack": "^4.41.2",
+    "aws-sdk": "^2.726.0",
+    "serverless": "^1.78.0",
+    "serverless-webpack": "^5.3.3",
+    "webpack": "^4.44.1",
     "webpack-node-externals": "^1.7.2"
   },
   "scripts": {},
